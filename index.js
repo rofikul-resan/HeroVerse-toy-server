@@ -54,9 +54,10 @@ async function run() {
 
     app.get("/category", async (req, res) => {
       const queryKey = req.query.category;
-      console.log(queryKey);
+      const limitToy = req.query.limit;
+      console.log(limitToy);
       const query = { subCategory: { $regex: queryKey, $options: "i" } };
-      const result = await toyCollection.find(query).toArray();
+      const result = await toyCollection.find(query).limit(+limitToy).toArray();
       res.send(result);
     });
 
