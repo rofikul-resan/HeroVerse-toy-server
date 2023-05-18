@@ -35,6 +35,14 @@ async function run() {
       res.send(toy);
     });
 
+    app.get("/category", async (req, res) => {
+      const queryKey = req.query.category;
+      console.log(queryKey);
+      const query = { subCategory: { $regex: queryKey, $options: "i" } };
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
