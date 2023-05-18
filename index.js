@@ -35,6 +35,16 @@ async function run() {
       res.send(toy);
     });
 
+    app.get("/all-photo", async (req, res) => {
+      const limit = req.query.limit;
+      console.log(limit);
+      const option = {
+        projection: { pictureURL: 1 },
+      };
+      const result = await toyCollection.find({}, option).toArray();
+      res.send(result);
+    });
+
     app.get("/category", async (req, res) => {
       const queryKey = req.query.category;
       console.log(queryKey);
