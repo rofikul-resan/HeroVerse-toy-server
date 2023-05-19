@@ -52,11 +52,23 @@ async function run() {
     });
 
     app.get("/my-toys", async (req, res) => {
+      const sortMethod = req.query.sort;
       const email = req.query.email;
       const limit = req.query.limit;
       const query = { sellerEmail: email };
       const toy = await toyCollection.find(query).limit(+limit).toArray();
+      if (sortMethod === "descending") {
+        toy.sort((a, b) => +b.price - +a.price);
+      } else if (sortMethod === "ascending") {
+        toy.sort((a, b) => +a.price - +b.price);
+      }
       res.send(toy);
+    });
+
+    app.get("/my-toys-total", async (req, res) => {
+      const email = req.query.email;
+      const total = await toyCollection.countDocuments({ sellerEmail: email });
+      res.send({ total });
     });
 
     app.get("/toys/:id", async (req, res) => {
@@ -64,6 +76,24 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const toy = await toyCollection.findOne(query);
       res.send(toy);
+    });
+
+    app.patch("/toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const newDoc = req.body;
+      const options = { upsert: true };
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          subCategory: newDoc.subCategory,
+          price: newDoc.price,
+          rating: newDoc.rating,
+          quantity: newDoc.quantity,
+          description: newDoc.description,
+        },
+      };
+      const result = await toyCollection.updateOne(query, updateDoc, options);
+      res.send(result);
     });
 
     app.get("/all-photo", async (req, res) => {
