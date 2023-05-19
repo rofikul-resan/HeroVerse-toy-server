@@ -31,7 +31,31 @@ async function run() {
     });
 
     app.get("/toys", async (req, res) => {
-      const toy = await toyCollection.find().toArray();
+      const limit = req.query.limit;
+      const toy = await toyCollection.find().limit(+limit).toArray();
+      res.send(toy);
+    });
+
+    app.delete("/toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await toyCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
+    app.get("/toys-name/:name", async (req, res) => {
+      const limit = req.query.limit;
+      const nameKey = req.params.name;
+      console.log(nameKey);
+      const query = { name: { $regex: nameKey, $options: "i" } };
+      const toy = await toyCollection.find(query).limit(+limit).toArray();
+      res.send(toy);
+    });
+
+    app.get("/my-toys", async (req, res) => {
+      const email = req.query.email;
+      const limit = req.query.limit;
+      const query = { sellerEmail: email };
+      const toy = await toyCollection.find(query).limit(+limit).toArray();
       res.send(toy);
     });
 
@@ -44,7 +68,6 @@ async function run() {
 
     app.get("/all-photo", async (req, res) => {
       const limit = req.query.limit;
-      console.log(limit);
       const option = {
         projection: { pictureURL: 1 },
       };
@@ -55,7 +78,6 @@ async function run() {
     app.get("/category", async (req, res) => {
       const queryKey = req.query.category;
       const limitToy = req.query.limit;
-      console.log(limitToy);
       const query = { subCategory: { $regex: queryKey, $options: "i" } };
       const result = await toyCollection.find(query).limit(+limitToy).toArray();
       res.send(result);
