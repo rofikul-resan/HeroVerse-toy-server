@@ -69,12 +69,18 @@ async function run() {
     app.get("/my-toys", async (req, res) => {
       const sortMethod = req.query.sort;
       const email = req.query.email;
+      const skip = req.query.skip;
       const limit = req.query.limit;
       const query = { sellerEmail: email };
-      const toy = await toyCollection.find(query).limit(+limit).toArray();
-      if (sortMethod === "descending") {
+      const toy = await toyCollection
+        .find(query)
+        .sort(sortMethod)
+        .skip(+skip)
+        .limit(+limit)
+        .toArray();
+      if (sortMethod === "1") {
         toy.sort((a, b) => +b.price - +a.price);
-      } else if (sortMethod === "ascending") {
+      } else if (sortMethod === "-1") {
         toy.sort((a, b) => +a.price - +b.price);
       }
       res.send(toy);
