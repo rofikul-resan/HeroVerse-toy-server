@@ -59,7 +59,6 @@ async function run() {
     app.get("/toys-name/:name", async (req, res) => {
       const limit = req.query.limit;
       const nameKey = req.params.name;
-      console.log(nameKey);
       const query = { name: { $regex: nameKey, $options: "i" } };
       const toy = await toyCollection.find(query).limit(+limit).toArray();
       res.send(toy);
