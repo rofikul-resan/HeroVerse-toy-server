@@ -24,24 +24,38 @@ async function run() {
   try {
     const toyCollection = client.db("hero-toys").collection("toy");
 
+    // for add toy
     app.post("/toy", async (req, res) => {
       const data = req.body;
       const result = await toyCollection.insertOne(data);
       res.send(result);
     });
 
+    // get all toys with limit
     app.get("/toys", async (req, res) => {
+      const skip = req.query.skip;
       const limit = req.query.limit;
-      const toy = await toyCollection.find().limit(+limit).toArray();
+      const toy = await toyCollection
+        .find()
+        .skip(+skip)
+        .limit(+limit)
+        .toArray();
       res.send(toy);
     });
 
+    app.get("/total-toy", async (req, res) => {
+      const total = await toyCollection.estimatedDocumentCount();
+      res.send({ total });
+    });
+
+    // delete toy information
     app.delete("/toys/:id", async (req, res) => {
       const id = req.params.id;
       const result = await toyCollection.deleteOne({ _id: new ObjectId(id) });
       res.send(result);
     });
 
+    // Search by toy name
     app.get("/toys-name/:name", async (req, res) => {
       const limit = req.query.limit;
       const nameKey = req.params.name;
@@ -51,6 +65,7 @@ async function run() {
       res.send(toy);
     });
 
+    // sorting and read toy by user email
     app.get("/my-toys", async (req, res) => {
       const sortMethod = req.query.sort;
       const email = req.query.email;
@@ -65,12 +80,14 @@ async function run() {
       res.send(toy);
     });
 
+    // user total toy added
     app.get("/my-toys-total", async (req, res) => {
       const email = req.query.email;
       const total = await toyCollection.countDocuments({ sellerEmail: email });
       res.send({ total });
     });
 
+    // read every single boy data
     app.get("/toys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -78,6 +95,7 @@ async function run() {
       res.send(toy);
     });
 
+    // update toy information
     app.patch("/toys/:id", async (req, res) => {
       const id = req.params.id;
       const newDoc = req.body;
@@ -96,6 +114,7 @@ async function run() {
       res.send(result);
     });
 
+    // photo for photo gallery section
     app.get("/all-photo", async (req, res) => {
       const limit = req.query.limit;
       const option = {
@@ -105,6 +124,7 @@ async function run() {
       res.send(result);
     });
 
+    // toys filter for react tab by category
     app.get("/category", async (req, res) => {
       const queryKey = req.query.category;
       const limitToy = req.query.limit;
